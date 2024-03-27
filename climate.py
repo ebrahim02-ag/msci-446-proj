@@ -1,3 +1,7 @@
+'''
+This script reads the climate data from the WorldClim dataset and extracts the data for the Canadian provinces and territories.
+'''
+
 import rasterio
 import numpy as np
 import os 
@@ -5,7 +9,7 @@ import csv
 
 datasets = {}
 
-#lat, long
+# Locations of the provinces and territories in Canada
 locations = {
   'BC': {'lat': 53.73, 'long': -127.65, 'variables': {}},
   'AB': {'lat': 55.00, 'long': -115.00, 'variables': {}},
@@ -22,6 +26,7 @@ locations = {
   'NU': {'lat': 65.04, 'long': -92.55, 'variables': {}},
 }
 
+# Load the tif files after downloading the data from the WorldClim website https://www.worldclim.com/version2
 def load_tif_files(folder): 
   for filename in os.listdir(folder):
     if filename.endswith(".tif"):
@@ -30,6 +35,7 @@ def load_tif_files(folder):
       name = name.split('.tif')[0]
       datasets[name] = dataset
 
+# Populate the locations with the climate data
 def populate_locations(): 
   for key, ds in datasets.items():
     band1 = ds.read(1)
@@ -39,6 +45,7 @@ def populate_locations():
       x, y = ds.index(long, lat)
       locations[loc]['variables'][key] = band1[x, y]
 
+# Save the data as a csv file
 def save_as_csv(): 
   headers = ['location', 'lat', 'long']
   headers.extend(datasets.keys())
@@ -51,7 +58,6 @@ def save_as_csv():
         row.append(locations[loc]['variables'][key])
       csv_writer.writerow(row)
     
-
 
 if __name__ == "__main__":
   folder = 'wc2.1_5m_bio'
